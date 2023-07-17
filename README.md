@@ -6,8 +6,9 @@
 More precisely, it relies on the
 [_screenplay_ LaTeX class](https://www.ctan.org/pkg/screenplay) by John Pate,
 which implements Academy-recommended rules. It can be found in the
-[TeXLive](https://tug.org/texlive/) (Linux/Windows/Mac) and
-[MiKTeX](https://miktex.org/) (Windows) distributions.
+[TeXLive](https://tug.org/texlive/) and
+[MiKTeX](https://miktex.org/) distributions. Both have packages
+for Linux, Windows and Mac.
 
 `fountain2latex` is written in [Haskell](https://haskell.org) and compiled
 with GHC version 9.2.8.
