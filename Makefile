@@ -4,11 +4,9 @@
 PROJECT_NAME := fountain2latex
 
 EXE_EXT :=
-CABAL_FLAGS := --enable-shared
 
 ifneq ($(USERPROFILE),)
 	EXE_EXT := .exe
-	CABAL_FLAGS := --disable-shared
 endif
 
 # The executable reports its version, and we build a module for that.
@@ -22,6 +20,8 @@ ifneq ($(VERSION_COMMIT),$(VERSION_COMMIT_FILE_CONTENTS))
 	_ := $(shell echo "$(VERSION_COMMIT)" > $(VERSION_COMMIT_FILE))
 endif
 
+CABAL_FILE := $(PROJECT_NAME).cabal
+
 COMPILED_FILENAME := $(PROJECT_NAME)$(EXE_EXT)
 COMPILED_DIR := out
 COMPILED_TARGET := $(COMPILED_DIR)/$(COMPILED_FILENAME)
@@ -29,28 +29,49 @@ COMPILED_TARGET := $(COMPILED_DIR)/$(COMPILED_FILENAME)
 SOURCES := src/Main.hs $(GIT_VERSION_MODULE)
 
 
-.PHONY: install vartest vermode clean
-.SILENT: vartest clean
-.ONESHELL: vartest clean
+.PHONY: install vartest vermode clean deepclean build help
+.SILENT: vartest help $(GIT_VERSION_MODULE) $(COMPILED_TARGET)
+.ONESHELL: vartest
+
+help:
+	echo Type 'make build' to compile and leave the executable in ./out/
+	echo Type 'make install' to compile and install the executable in your system
 
 vartest:
-	echo COMPILED_FILE               : $(COMPILED_FILE)
-	echo USERPROFILE                 : $(USERPROFILE)
-	echo VERSION_COMMIT              : $(VERSION_COMMIT)
-	echo VERSION_COMMIT_FILE_CONTENTS: $(VERSION_COMMIT_FILE_CONTENTS)
+	echo $$\(CABAL_FILE\)                  : $(CABAL_FILE)
+	echo $$\(COMPILED_DIR\)                : $(COMPILED_DIR)
+	echo $$\(COMPILED_FILENAME\)           : $(COMPILED_FILENAME)
+	echo $$\(COMPILED_TARGET\)             : $(COMPILED_TARGET)
+	echo $$\(COMMIT\)                      : $(COMMIT)
+	echo $$\(GIT_VERSION_MODULE\)          : $(GIT_VERSION_MODULE)
+	echo $$\(SOURCES\)                     : $(SOURCES)
+	echo $$\(USERPROFILE\)                 : $(USERPROFILE)
+	echo $$\(VERSION\)                     : $(VERSION)
+	echo $$\(VERSION_COMMIT\)              : $(VERSION_COMMIT)
+	echo $$\(VERSION_COMMIT_FILE\)         : $(VERSION_COMMIT_FILE)
+	echo $$\(VERSION_COMMIT_FILE_CONTENTS\): $(VERSION_COMMIT_FILE_CONTENTS)
 
 $(GIT_VERSION_MODULE): $(VERSION_COMMIT_FILE)
-	@echo module GitVersion where > $(GIT_VERSION_MODULE)
-	@echo >> $(GIT_VERSION_MODULE)
-	@echo gitVersion :: String >> $(GIT_VERSION_MODULE)
-	@echo gitVersion = \"$(VERSION_COMMIT)\" >> $(GIT_VERSION_MODULE)
+	echo module GitVersion where > $(GIT_VERSION_MODULE)
+	echo >> $(GIT_VERSION_MODULE)
+	echo gitVersion :: String >> $(GIT_VERSION_MODULE)
+	echo gitVersion = \"$(VERSION_COMMIT)\" >> $(GIT_VERSION_MODULE)
 
-$(COMPILED_TARGET): $(SOURCES)
-	cabal build -O2 --disable-debug-info --enable-executable-stripping -j $(CABAL_FLAGS)
-	@mkdir -p $(COMPILED_DIR)
-	@find dist-newstyle -name $(COMPILED_FILE) -exec cp {} $(COMPILED_TARGET)
+$(COMPILED_TARGET): $(SOURCES) $(CABAL_FILE)
+	cabal build -O2 --disable-debug-info --disable-shared --enable-executable-stripping -j $(CABAL_FLAGS)
+	mkdir -p $(COMPILED_DIR)
+	echo find dist-newstyle -name $(COMPILED_FILE) -exec cp {} $(COMPILED_TARGET) \;
+	find dist-newstyle -name $(COMPILED_FILENAME) -exec cp \{\} $(COMPILED_TARGET) \;
+
+build: $(COMPILED_TARGET)
+
+install: $(SOURCE) $(CABAL_FILE)
+	cabal install -O2 --disable-debug-info --disable-shared --enable-executable-stripping -j --overwrite-policy=always $(CABAL_FLAGS)
 
 clean:
-	-rm $(GIT_VERSION_MODULE)
-	-rm -rf $(COMPILED_DIR)
+	-find . \( -iname \*.sw\? -o -iname \*\~ -o -iname \*\# \) -delete
+	-rm -rf $(GIT_VERSION_MODULE) $(VERSION_COMMIT_FILE)
+
+deepclean: clean
+	-rm -rf $(COMPILED_DIR) dist-newstyle
 
