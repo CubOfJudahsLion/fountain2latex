@@ -1,2 +1,2 @@
-<iframe src="./README.pdf" width="100%" height="100%" style="border:none"></iframe>
+[Click to read](https://docs.google.com/viewer?url=https://raw.githubusercontent.com/CubOfJudahsLion/fountain2latex/master/README.pdf)
 
