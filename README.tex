@@ -1,0 +1,83 @@
+\documentclass[11pt]{article}
+\usepackage{hyperref}
+\usepackage[dvipsnames]{xcolor}
+\newcommand{\link}[2]{\textcolor{Blue}{\href{#1}{#2}}}
+\setlength{\parskip}{6pt plus2pt}
+\setlength{\parindent}{0pt}
+\author{Alexander Feterman Naranjo}
+\date{July 2023}
+\title{\textbf{\texttt{fountain2latex}}}
+
+\begin{document}
+\maketitle
+
+\begin{center}
+\scriptsize{\emph{(Click the back arrow to return to the repo)}}
+\end{center}
+
+\texttt{fountain2latex} is a simple utility to convert from the
+\texttt{\link{https://fountain.io/}{.fountain}} screenplay format to
+the \link{https://www.latex-project.org/}{\LaTeX} screenplay subformat.
+{\LaTeX} provides world-class typesetting quality for that extra bit of
+class and professionalism in your script.
+
+To be more precise, this utility specifically relies on the
+\emph{\link{https://www.ctan.org/pkg/screenplay}{screenplay {\LaTeX} class}}
+by \textbf{John Pate}, which implements Academy-recommended rules. It can be
+found in the \link{https://tug.org/texlive/}{TeXLive} and
+\link{https://miktex.org/}{MiKTeX} distributions, both of which offer
+packages for Linux, Windows and Mac.
+
+\texttt{fountain2latex} is written in \link{https://haskell.org}{Haskell}
+and compiled with GHC version 9.2.8.
+
+
+\section*{Why?}
+
+I find {\LaTeX} to be more obtrusive to my writing flow. Fountain barely
+requires an extra character here or there. Having to think about the
+\verb|\command{}| I need to properly format something is disrupting.
+Then again, I want the sweet, sweet typesetting{\ldots}
+
+There's gotta be a way to have my cake and eat it too.
+
+``\emph{But Cub, you beautiful, daunting force of nature}'', I hear you say,
+``\emph{there are already ways to convert fountain to other formats}''.
+
+I know, but I'm old school (no duh. I'm actually using \emph{make} here.)
+Something this simple should be just a few keystrokes in your terminal and
+that's it. Zero leak risk.
+
+Now where did I leave that gosh-darned Bengay.
+
+
+\section*{Installing from release}
+
+Download the latest release and extract all the files to any directory.
+Run by typing\\
+
+\verb|    |\colorbox{Black}{\textcolor{White}{\texttt{fountain2latex \emph{<input>}[.fountain] [\emph{<output>}[.tex]]}}}\\
+
+Extensions can be omitted, and the result will be sent to standard
+output if the second filename is not provided.
+
+
+\section*{Installing from sources}
+
+Needless to say, you need GHC 9.2.8+ to do this. If you don't have it,
+you can always install from release, as shown in the previous section.
+
+Just \texttt{cd} to the \texttt{fountain2latex} directory and run:\\
+
+\verb|    |\colorbox{Black}{\textcolor{White}{\texttt{make install}}}\\
+
+Which should take care of everything, including overwriting older
+versions.
+
+
+\section*{Contact}
+
+I can be reached at \texttt{\link{mailto:10951848+CubOfJudahsLion@users.noreply.github.com}{10951848+CubOfJudahsLion@users.noreply.github.com}}.
+
+\end{document}
+

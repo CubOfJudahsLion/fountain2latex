@@ -70,8 +70,10 @@ install: $(SOURCE) $(CABAL_FILE)
 
 clean:
 	-find . \( -iname \*.sw\? -o -iname \*\~ -o -iname \*\# \) -delete
+	-rm *.{aux,out,log}
 	-rm -rf $(GIT_VERSION_MODULE) $(VERSION_COMMIT_FILE)
 
 deepclean: clean
 	-rm -rf $(COMPILED_DIR) dist-newstyle
+	-rm *.pdf
 
