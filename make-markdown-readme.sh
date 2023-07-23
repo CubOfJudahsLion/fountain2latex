@@ -1,1 +1,3 @@
-sed -re '/^\\newcommand\{/d; /Click the back arrow/d; s/\\link\>/\\href/g' README.tex | pandoc -r latex -w markdown | cat README-prelude.md - | sed -re 's/\s*\{(style=|#)[^}]*\}//g; s/\\$//' > README.md
+#! /usr/bin/bash
+sed -re '/^\\newcommand\{/d; /Click the back arrow/d; /\<link\>/s/\\link\>/\\href/g' README.tex | pandoc -r latex -w markdown_strict | dos2unix | cat README-prelude.md - > README.md
+
