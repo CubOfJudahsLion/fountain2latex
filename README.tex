@@ -1,66 +1,99 @@
 \documentclass[11pt]{article}
 \usepackage{hyperref}
 \usepackage[dvipsnames]{xcolor}
+\usepackage[margin=0.75in]{geometry}
 \newcommand{\link}[2]{\textcolor{Blue}{\href{#1}{#2}}}
+\newcommand{\cmdline}[1]{    \hspace{0.5in}\colorbox{Black}{\textcolor{White}{\texttt{#1}}}}
+\definecolor{Parchment}{RGB}{231,211,178}
 \setlength{\parskip}{6pt plus2pt}
 \setlength{\parindent}{0pt}
+\title{\textbf{\texttt{fountain2latex}}}
 \author{Alexander Feterman Naranjo}
 \date{July 2023}
-\title{\textbf{\texttt{fountain2latex}}}
 
 \begin{document}
 \maketitle
 
-\begin{center}
-\scriptsize{\emph{(Click the back arrow to return to the repo)}}
-\end{center}
-
 \texttt{fountain2latex} is a simple utility to convert from the
 \texttt{\link{https://fountain.io/}{.fountain}} screenplay format to
 the \link{https://www.latex-project.org/}{\LaTeX} screenplay subformat.
-{\LaTeX} provides world-class typesetting quality for that extra bit of
-class and professionalism in your script.
+{\LaTeX} provides superior typesetting for professional-looking
+documents.
 
-To be more precise, this utility specifically relies on the
-\emph{\link{https://www.ctan.org/pkg/screenplay}{screenplay {\LaTeX} class}}
-by \link{http://dvc.org.uk/johnny.html}{John Pate}, which implements
-Academy-recommended rules. It can be found in the
-\link{https://tug.org/texlive/}{TeXLive} and
+This utility relies on the
+\link{https://www.ctan.org/pkg/screenplay}{screenplay {\LaTeX} class}
+and the \link{https://www.ctan.org/pkg/screenplay-pkg}{\texttt{screenplay-pkg} package},
+both by \link{http://dvc.org.uk/johnny.html}{John Pate}. The former
+implements a \texttt{document class} with Academy-recommended rules and
+macros; the latter creates an \texttt{enviroment} which allows inclusion
+of screenplay-formatted sections in larger documents. They're both
+available in the \link{https://tug.org/texlive/}{TeXLive} and
 \link{https://miktex.org/}{MiKTeX} distributions, both of which offer
 packages for Linux, Windows and Mac.
 
-\texttt{fountain2latex} is written in \link{https://haskell.org}{Haskell}
-and compiled with GHC version 9.2.8.
+\texttt{fountain2latex} is written in \link{https://haskell.org}{\textbf{Haskell}}
+and compiled with \textsf{GHC} version 9.2.8.
+
+
+\section*{Using \texttt{fountain2latex}}
+
+When it's installed (and in your path), \texttt{fountain2latex} can be
+invoked in several ways. \emph{Legend}: braces (\texttt{\{\}}) mean you
+must select one of the alternatives separated by vertical bars (\texttt{|}).
+Brackets (\texttt{[]}) mean the alternatives are optional.
+\begin{itemize}
+  \item{To display the version:\\ \\
+    \cmdline{fountain2latex \{-v|-{}-version\}}}\\
+  \item{To see basic usage instructions:\\ \\
+    \cmdline{fountain2latex \{-u|-{}-usage\}}}\\
+  \item{To get a (somewhat) more comprehensive help text:\\ \\
+    \cmdline{fountain2latex \{-h|-{}-help\}}}\\
+  \item{To convert standard input into standard output:\\ \\
+    \cmdline{fountain2latex [-p|-{}-as-part]}\\ \\
+    The argument \texttt{-p} (or its equivalent longer variant, \texttt{-{}-as-part})
+    instructs \texttt{fountain2latex} not to generate a standalone document,
+    but to emit a document fragment that can be included in another. The master
+    document must use \texttt{screenplay-pkg}:\\ \\
+    \colorbox{Parchment}{\textcolor{Black}{\texttt{\textbackslash{}usepackage\{screenplay-pkg\}}}}}\\
+  \item{To convert a file to standard output:\\ \\
+    \cmdline{fountain2latex [-p|-{}-as-part] \emph{<input-file>}[.fountain]}\\ \\
+    \texttt{-p} (or \texttt{-{}-as-part}) works exactly the same as in the previous
+    case. If the \texttt{.fountain} extension is omitted, \texttt{fountain2latex}
+    will try to find a file with the same name as the argument; failing that, it
+    will append \texttt{.fountain} to it and then try again.}
+  \item{To convert a file into another:\\ \\
+    \cmdline{\scriptsize{fountain2latex [-p|-{}-as-part] \emph{<input-file>}[.fountain] \{.|\emph{<output-file>}[.tex]\}}}\\ \\
+    \texttt{-p} and the optional \texttt{.fountain} extension work as
+    stated above. For the output file, if the \texttt{.tex} extension
+    is omitted, it will be added. If you use a period instead of an
+    output filename, the output file will be named the same as the
+    input one, with the extension changed to \texttt{.tex}.}
+\end{itemize}
+
+More accurately, \texttt{fountain2latex} processes all options from
+left to right, each option overriding previous ones.
 
 
 \section*{Why?}
 
-I find {\LaTeX} to be more obtrusive to my writing flow. Fountain barely
-requires an extra character here or there. Having to think about the
-\verb|\command{}| I need to properly format something is disrupting.
-Then again, I want the sweet, sweet typesetting{\ldots}
+I find {\LaTeX} to be more obtrusive to my writing flow, but its
+typesetting is without par. Fountain barely requires an extra
+character here or there, so it's more amenable to creative flow
+and it's plain text so I can use even my favorite
+\link{https://www.vim.org/}{code editor} (with
+a \link{https://github.com/kblin/vim-fountain}{helper plugin}
+for some extra niceties) but no formatting magic.
 
-There's gotta be a way to have my cake and eat it too.
-
-``\emph{But Cub, you beautiful, daunting force of nature}'', I hear you say,
-``\emph{there are already ways to convert fountain to other formats}''.
-
-I know, but I'm old school (no duh. I'm actually using \emph{make} here.)
-Something this simple should be just a few keystrokes in your terminal and
-that's it. Zero leak risk.
-
-Now where did I leave that gosh-darned Bengay.
+That's where \texttt{fountain2latex} comes in: a simple console
+application. Just a few keystrokes in your terminal and that's it.
+Zero leak risks.
 
 
 \section*{Installing from release}
 
-Download the latest release and extract all the files to any directory.
-Run by typing\\
-\\
-\verb|    |\colorbox{Black}{\textcolor{White}{\texttt{fountain2latex \emph{<input>}[.fountain] [\emph{<output>}[.tex]]}}}\\
-\\
-Extensions can be omitted, and the result will be sent to standard
-output if the second filename is not provided.
+You know this one. Download the latest release, extract all the files
+to any directory, optionally add the directory to your \texttt{\$PATH}
+for convenience.
 
 
 \section*{Installing from sources}
@@ -70,7 +103,7 @@ you can always install from release, as shown in the previous section.
 
 Just \texttt{cd} to the \texttt{fountain2latex} directory and run:\\
 \\
-\verb|    |\colorbox{Black}{\textcolor{White}{\texttt{make install}}}\\
+\cmdline{make install}\\
 \\
 Which should take care of everything, including overwriting older
 versions.
@@ -79,7 +112,6 @@ versions.
 \section*{Contact}
 
 I can be reached at \texttt{\link{mailto:10951848+CubOfJudahsLion@users.noreply.github.com}{10951848+CubOfJudahsLion@users.noreply.github.com}}.\\
-\\
 
 \end{document}
 

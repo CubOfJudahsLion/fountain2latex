@@ -1,52 +1,102 @@
-(**Note**: this version was automatically converted through
-[Pandoc](https://pandoc.org/).
-[Click here](https://docs.google.com/viewer?url=https://raw.githubusercontent.com/CubOfJudahsLion/fountain2latex/master/README.pdf) for the original.)
+_(**Note**: this version was automatically converted through [Pandoc](https://pandoc.org/). [Click here](https://docs.google.com/viewer?url=https://raw.githubusercontent.com/CubOfJudahsLion/fountain2latex/master/README.pdf) for the original.)_
 
 
 
 `fountain2latex` is a simple utility to convert from the
-[`.fountain`](https://fountain.io/) screenplay format to the
-[LaTeX](https://www.latex-project.org/) screenplay subformat. LaTeX
-provides world-class typesetting quality for that extra bit of class and
-professionalism in your script.
+<span style="color: Blue">[`.fountain`](https://fountain.io/)</span>
+screenplay format to the
+<span style="color: Blue">[LaTeX](https://www.latex-project.org/)</span>
+screenplay subformat. LaTeX provides superior typesetting for
+professional-looking documents.
 
-To be more precise, this utility specifically relies on the *[screenplay
-LaTeX class](https://www.ctan.org/pkg/screenplay)* by [John
-Pate](http://dvc.org.uk/johnny.html), which implements
-Academy-recommended rules. It can be found in the
-[TeXLive](https://tug.org/texlive/) and [MiKTeX](https://miktex.org/)
+This utility relies on the <span style="color: Blue">[screenplay LaTeX
+class](https://www.ctan.org/pkg/screenplay)</span> and the
+<span style="color: Blue">[`screenplay-pkg`
+package](https://www.ctan.org/pkg/screenplay-pkg)</span>, both by
+<span style="color: Blue">[John
+Pate](http://dvc.org.uk/johnny.html)</span>. The former implements a
+`document class` with Academy-recommended rules and macros; the latter
+creates an `enviroment` which allows inclusion of screenplay-formatted
+sections in larger documents. They’re both available in the
+<span style="color: Blue">[TeXLive](https://tug.org/texlive/)</span> and
+<span style="color: Blue">[MiKTeX](https://miktex.org/)</span>
 distributions, both of which offer packages for Linux, Windows and Mac.
 
-`fountain2latex` is written in [Haskell](https://haskell.org) and
-compiled with GHC version 9.2.8.
+`fountain2latex` is written in
+<span style="color: Blue">[**Haskell**](https://haskell.org)</span> and
+compiled with <span class="sans-serif">GHC</span> version 9.2.8.
+
+# Using `fountain2latex`
+
+When it’s installed (and in your path), `fountain2latex` can be invoked
+in several ways. *Legend*: braces (`{}`) mean you must select one of the
+alternatives separated by vertical bars (`|`). Brackets (`[]`) mean the
+alternatives are optional.
+
+-   To display the version:  
+      
+    <span style="background-color: Black"><span style="color: White">`fountain2latex {-v|--version}`</span></span>  
+
+-   To see basic usage instructions:  
+      
+    <span style="background-color: Black"><span style="color: White">`fountain2latex {-u|--usage}`</span></span>  
+
+-   To get a (somewhat) more comprehensive help text:  
+      
+    <span style="background-color: Black"><span style="color: White">`fountain2latex {-h|--help}`</span></span>  
+
+-   To convert standard input into standard output:  
+      
+    <span style="background-color: Black"><span style="color: White">`fountain2latex [-p|--as-part]`</span></span>  
+      
+    The argument `-p` (or its equivalent longer variant, `--as-part`)
+    instructs `fountain2latex` not to generate a standalone document,
+    but to emit a document fragment that can be included in another. The
+    master document must use `screenplay-pkg`:  
+      
+    <span style="background-color: rgb(231,211,178)"><span style="color: Black">`\usepackage{screenplay-pkg}`</span></span>  
+
+-   To convert a file to standard output:  
+      
+    <span style="background-color: Black"><span style="color: White">`fountain2latex [-p|--as-part] `*`<input-file>`*`[.fountain]`</span></span>  
+      
+    `-p` (or `--as-part`) works exactly the same as in the previous
+    case. If the `.fountain` extension is omitted, `fountain2latex` will
+    try to find a file with the same name as the argument; failing that,
+    it will append `.fountain` to it and then try again.
+
+-   To convert a file into another:  
+      
+    <span style="background-color: Black"><span style="color: White">`fountain2latex [-p|--as-part] `*`<input-file>`*`[.fountain] {.|`*`<output-file>`*`[.tex]}`</span></span>  
+      
+    `-p` and the optional `.fountain` extension work as stated above.
+    For the output file, if the `.tex` extension is omitted, it will be
+    added. If you use a period instead of an output filename, the output
+    file will be named the same as the input one, with the extension
+    changed to `.tex`.
+
+More accurately, `fountain2latex` processes all options from left to
+right, each option overriding previous ones.
 
 # Why?
 
-I find LaTeX to be more obtrusive to my writing flow. Fountain barely
-requires an extra character here or there. Having to think about the
-`\command{}` I need to properly format something is disrupting. Then
-again, I want the sweet, sweet typesetting…
+I find LaTeX to be more obtrusive to my writing flow, but its
+typesetting is without par. Fountain barely requires an extra character
+here or there, so it’s more amenable to creative flow and it’s plain
+text so I can use even my favorite <span style="color: Blue">[code
+editor](https://www.vim.org/)</span> (with a
+<span style="color: Blue">[helper
+plugin](https://github.com/kblin/vim-fountain)</span> for some extra
+niceties) but no formatting magic.
 
-There’s gotta be a way to have my cake and eat it too.
-
-“*But Cub, you beautiful, daunting force of nature*”, I hear you say,
-“*there are already ways to convert fountain to other formats*”.
-
-I know, but I’m old school (no duh. I’m actually using *make* here.)
-Something this simple should be just a few keystrokes in your terminal
-and that’s it. Zero leak risk.
-
-Now where did I leave that gosh-darned Bengay.
+That’s where `fountain2latex` comes in: a simple console application.
+Just a few keystrokes in your terminal and that’s it. Zero leak risks.
 
 # Installing from release
 
-Download the latest release and extract all the files to any directory.
-Run by typing  
-  
-`    `<span style="background-color: Black"><span style="color: White">`fountain2latex `*`<input>`*`[.fountain] [`*`<output>`*`[.tex]]`</span></span>  
-  
-Extensions can be omitted, and the result will be sent to standard
-output if the second filename is not provided.
+You know this one. Download the latest release, extract all the files to
+any directory, optionally add the directory to your `$PATH` for
+convenience.
 
 # Installing from sources
 
@@ -55,7 +105,7 @@ you can always install from release, as shown in the previous section.
 
 Just `cd` to the `fountain2latex` directory and run:  
   
-`    `<span style="background-color: Black"><span style="color: White">`make install`</span></span>  
+<span style="background-color: Black"><span style="color: White">`make install`</span></span>  
   
 Which should take care of everything, including overwriting older
 versions.
@@ -63,5 +113,4 @@ versions.
 # Contact
 
 I can be reached at
-[`10951848+CubOfJudahsLion@users.noreply.github.com`](mailto:10951848+CubOfJudahsLion@users.noreply.github.com).  
-  
+<span style="color: Blue">[`10951848+CubOfJudahsLion@users.noreply.github.com`](mailto:10951848+CubOfJudahsLion@users.noreply.github.com)</span>.  

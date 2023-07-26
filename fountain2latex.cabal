@@ -8,6 +8,7 @@ author        : Alexander Feterman Naranjo
 maintainer    : 10951848+CubOfJudahsLion@users.noreply.github.com
 copyright     : (c) 2023 Alexander Feterman Naranjo
 category      : Language
+tested-with   : GHC == 9.2.8
 extra-source-files:
     CHANGELOG.md
     README.md
@@ -20,6 +21,7 @@ executable fountain2latex
     -- other-extensions:die
     build-depends:    base ^>=4.16.4.0
                  ,    directory
+                 ,    mtl
                  ,    text
                  ,    attoparsec >= 0.14.4 && < 0.15
     hs-source-dirs:   src
