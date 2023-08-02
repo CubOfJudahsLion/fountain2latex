@@ -1,7 +1,7 @@
 \documentclass[11pt]{article}
 \usepackage{hyperref}
 \usepackage[dvipsnames]{xcolor}
-\usepackage[margin=0.75in]{geometry}
+\usepackage[margin=1in]{geometry}
 \newcommand{\link}[2]{\textcolor{Blue}{\href{#1}{#2}}}
 \newcommand{\cmdline}[1]{    \hspace{0.5in}\colorbox{Black}{\textcolor{White}{\texttt{#1}}}}
 \definecolor{Parchment}{RGB}{231,211,178}
@@ -62,7 +62,7 @@ Brackets (\texttt{[]}) mean the alternatives are optional.
     will try to find a file with the same name as the argument; failing that, it
     will append \texttt{.fountain} to it and then try again.}
   \item{To convert a file into another:\\ \\
-    \cmdline{\scriptsize{fountain2latex [-p|-{}-as-part] \emph{<input-file>}[.fountain] \{.|\emph{<output-file>}[.tex]\}}}\\ \\
+    \cmdline{\small{fountain2latex [-p|-{}-as-part] \emph{<input-file>}[.fountain] \{.|\emph{<output-file>}[.tex]\}}}\\ \\
     \texttt{-p} and the optional \texttt{.fountain} extension work as
     stated above. For the output file, if the \texttt{.tex} extension
     is omitted, it will be added. If you use a period instead of an
@@ -98,8 +98,9 @@ for convenience.
 
 \section*{Installing from sources}
 
-Needless to say, you need GHC 9.2.8+ to do this. If you don't have it,
-you can always install from release, as shown in the previous section.
+Needless to say, you need \textsf{GHC} 9.2.8+ to do this. If you don't
+have it, you can always install from release, as shown in the previous
+section.
 
 Just \texttt{cd} to the \texttt{fountain2latex} directory and run:\\
 \\

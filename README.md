@@ -100,8 +100,9 @@ convenience.
 
 # Installing from sources
 
-Needless to say, you need GHC 9.2.8+ to do this. If you don’t have it,
-you can always install from release, as shown in the previous section.
+Needless to say, you need <span class="sans-serif">GHC</span> 9.2.8+ to
+do this. If you don’t have it, you can always install from release, as
+shown in the previous section.
 
 Just `cd` to the `fountain2latex` directory and run:  
   

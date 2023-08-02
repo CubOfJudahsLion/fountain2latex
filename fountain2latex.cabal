@@ -16,14 +16,16 @@ extra-source-files:
 
 executable fountain2latex
     main-is:          Main.hs
-    other-modules:    GitVersion
+    other-modules:    CommandLine
+                 ,    GitVersion
+                 ,    StreamHelper
     -- LANGUAGE extensions used by modules in this package.
-    -- other-extensions:die
+    -- other-extensions:
     build-depends:    base ^>=4.16.4.0
                  ,    directory
                  ,    mtl
+                 ,    megaparsec >= 9.4.1 && < 9.5
                  ,    text
-                 ,    attoparsec >= 0.14.4 && < 0.15
     hs-source-dirs:   src
     default-language: Haskell2010
 

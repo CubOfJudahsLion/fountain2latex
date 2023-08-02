@@ -29,7 +29,7 @@ COMPILED_TARGET := $(COMPILED_DIR)/$(COMPILED_FILENAME)
 SOURCES := src/Main.hs $(GIT_VERSION_MODULE)
 
 
-.PHONY: install vartest vermode clean deepclean build help
+.PHONY: install vartest vermode clean deepclean build help all
 .SILENT: vartest help $(GIT_VERSION_MODULE) $(COMPILED_TARGET)
 .ONESHELL: vartest
 
@@ -60,13 +60,21 @@ $(GIT_VERSION_MODULE): $(VERSION_COMMIT_FILE)
 $(COMPILED_TARGET): $(SOURCES) $(CABAL_FILE)
 	cabal build -O2 --disable-debug-info --disable-shared --enable-executable-stripping -j $(CABAL_FLAGS)
 	mkdir -p $(COMPILED_DIR)
-	echo find dist-newstyle -name $(COMPILED_FILE) -exec cp {} $(COMPILED_TARGET) \;
+	echo find dist-newstyle -type f -name $(COMPILED_FILENAME) -exec cp \{\} $(COMPILED_TARGET) \;
 	find dist-newstyle -name $(COMPILED_FILENAME) -exec cp \{\} $(COMPILED_TARGET) \;
 
 build: $(COMPILED_TARGET)
 
 install: $(SOURCE) $(CABAL_FILE)
 	cabal install -O2 --disable-debug-info --disable-shared --enable-executable-stripping -j --overwrite-policy=always $(CABAL_FLAGS)
+
+README.md: README.tex
+	./make-markdown-readme.sh
+
+README.pdf: README.tex
+	pdflatex README.tex
+
+all: build README.md README.pdf
 
 clean:
 	-find . \( -iname \*.sw\? -o -iname \*\~ -o -iname \*\# \) -delete

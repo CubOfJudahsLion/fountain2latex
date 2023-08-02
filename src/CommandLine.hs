@@ -8,25 +8,26 @@ Stability   : experimental
 Portability : POSIX,Windows
 -}
 
-{-# LANGUAGE ViewPatterns #-}
-
-module CommandLine ( CommandLineSwitch(..) , FinalArguments(..) , solveArguments ) where
+module CommandLine
+    ( CommandLineSwitch(..)
+    , SolvedArgumentSet(..)
+    , solveArguments
+    ) where
 
 
 import Control.Monad.Writer ( Writer, runWriter, tell )
 import Data.Char ( toLower )
 import Data.List ( foldl' )
-import System.IO ( FilePath, Handle, stdin, stdout )
 
 
-data CommandLineSwitch = VersionSwitch
-                       | UsageSwitch
-                       | HelpSwitch
-                       | AsPartSwitch
-                       | UnknownSwitch String
+-- |  Types of switches that can be passed through the command line.
+data CommandLineSwitch = VersionSwitch          -- ^  -v or --version
+                       | UsageSwitch            -- ^  -u or --usage
+                       | HelpSwitch             -- ^  -h or --help
+                       | AsPartSwitch           -- ^  -p or --as-part
+                       | UnknownSwitch String   -- ^  any other (unrecognized) switch
 
 instance Show CommandLineSwitch where
-    show :: CommandLineSwitch -> String
     show VersionSwitch      = "--version"
     show UsageSwitch        = "--usage"
     show HelpSwitch         = "--help"
@@ -34,47 +35,74 @@ instance Show CommandLineSwitch where
     show (UnknownSwitch u)  = u
 
 
-data CommandLineArgument = SwitchArgument CommandLineSwitch
-                         | FileArgument FilePath
-                         | ArgumentError [String]
-  deriving(Show)
+data CommandLineArgument  = SwitchArgument CommandLineSwitch
+                          | FileArgument FilePath
+                        deriving(Show)
 
 parseArgument :: String -> CommandLineArgument
-parseArgument "-v"        = SwitchArgument VersionSwitch
-parseArgument "--version" = SwitchArgument VersionSwitch
-parseArgument "-u"        = SwitchArgument UsageSwitch
-parseArgument "--usage"   = SwitchArgument UsageSwitch
-parseArgument "-h"        = SwitchArgument HelpSwitch
-parseArgument "--help"    = SwitchArgument HelpSwitch
-parseArgument "-p"        = SwitchArgument AsPartSwitch
-parseArgument "--as-part" = SwitchArgument AsPartSwitch
-parseArgument u@('-':_)   = SwitchArgument (UnknownSwitch u)
-parseArgument arg         = FileArgument arg
+parseArgument arg = parseLower $ fmap toLower arg
+  where
+    parseLower :: String -> CommandLineArgument
+    parseLower "-v"         = SwitchArgument VersionSwitch
+    parseLower "--version"  = SwitchArgument VersionSwitch
+    parseLower "-u"         = SwitchArgument UsageSwitch
+    parseLower "--usage"    = SwitchArgument UsageSwitch
+    parseLower "-h"         = SwitchArgument HelpSwitch
+    parseLower "--help"     = SwitchArgument HelpSwitch
+    parseLower "-p"         = SwitchArgument AsPartSwitch
+    parseLower "--as-part"  = SwitchArgument AsPartSwitch
+    parseLower u@('-':_)    = SwitchArgument (UnknownSwitch u)
+    parseLower _            = FileArgument arg
 
 
-data FinalArguments = FinalSwitch CommandLineSwitch
-                    | FinalFileSet { asPart :: Bool
-                                   , input  :: Maybe FilePath
-                                   , output :: Maybe FilePath }
-  deriving(Show)
+-- |  Target form of accumulated arguments after @solveArguments@.
+data SolvedArgumentSet  = SolvedSwitch   CommandLineSwitch
+                        | SolvedStdIO    Bool
+                        | SolvedOneFile  { asPart :: Bool
+                                         , input  :: FilePath }
+                        | SolvedTwoFiles { asPart :: Bool
+                                         , input  :: FilePath
+                                         , output :: FilePath }
+                      deriving(Show)
 
-solveArguments :: [String] -> Writer [String] FinalArguments
+-- |  Goes through arguments in order, trying to arrive at
+--    a final argument set. When new arguments are
+--    contradictory, the previous ones are disposed.
+solveArguments :: [String] -> Writer [String] SolvedArgumentSet
 solveArguments =
-  let initial = pure (FinalFileSet True Nothing Nothing)
-  in  foldl' nextArg initial . fmap parseArgument
- where
-  revealArgs :: Writer [String] FinalArguments -> FinalArguments
-  revealArgs = fst . runWriter
-  --
-  nextArg :: Writer [String] FinalArguments -> CommandLineArgument -> Writer [String] FinalArguments
-  nextArg accum (SwitchArgument VersionSwitch)                                            = FinalSwitch VersionSwitch <$ accum
-  nextArg accum (SwitchArgument UsageSwitch)                                              = FinalSwitch UsageSwitch   <$ accum
-  nextArg accum (SwitchArgument HelpSwitch)                                               = FinalSwitch HelpSwitch    <$ accum
-  nextArg accum (SwitchArgument (UnknownSwitch u))                                        = tell ["Unknown argument: " ++ u ++ "."] >> accum
-  nextArg accum@(revealArgs -> FinalSwitch _) (SwitchArgument AsPartSwitch)               = FinalFileSet True Nothing Nothing         <$ accum
-  nextArg accum@(revealArgs -> FinalSwitch _) (FileArgument file)                         = FinalFileSet False (Just file) Nothing    <$ accum
-  nextArg accum@(revealArgs -> FinalFileSet _ input output) (SwitchArgument AsPartSwitch) = FinalFileSet True input output            <$ accum
-  nextArg accum@(revealArgs -> FinalFileSet p Nothing Nothing) (FileArgument input)       = FinalFileSet p (Just input) Nothing       <$ accum
-  nextArg accum@(revealArgs -> FinalFileSet p (Just input) Nothing) (FileArgument output) = FinalFileSet p (Just input) (Just output) <$ accum
-  nextArg accum@(revealArgs -> FinalFileSet p (Just _) (Just _)) (FileArgument fname)     = tell ["Unused extra filename:\"" ++ fname ++ "\"."] >> accum
+  let
+    initial = pure (SolvedStdIO False)
+  in
+    foldl' nextArg initial . fmap parseArgument
+  where
+    nextArg :: Writer [String] SolvedArgumentSet -> CommandLineArgument -> Writer [String] SolvedArgumentSet
+    nextArg accum = accumCase $ fst $ runWriter accum
+      where
+        accumCase :: SolvedArgumentSet
+                  -> CommandLineArgument
+                  -> Writer [String] SolvedArgumentSet
+        accumCase _ (SwitchArgument VersionSwitch) =
+          SolvedSwitch VersionSwitch              <$ accum
+        accumCase _ (SwitchArgument UsageSwitch) =
+          SolvedSwitch UsageSwitch                <$ accum
+        accumCase _ (SwitchArgument HelpSwitch) =
+          SolvedSwitch HelpSwitch                 <$ accum
+        accumCase _ (SwitchArgument (UnknownSwitch u)) =
+          tell ["Unknown switch: " ++ u ++ "."]   >> accum
+        accumCase (SolvedSwitch _) (SwitchArgument AsPartSwitch) =
+          SolvedStdIO True                        <$ accum
+        accumCase (SolvedStdIO _) (SwitchArgument AsPartSwitch) =
+          SolvedStdIO True                        <$ accum
+        accumCase (SolvedOneFile _ file) (SwitchArgument AsPartSwitch) =
+          SolvedOneFile True file                 <$ accum
+        accumCase (SolvedTwoFiles _ inFile outFile) (SwitchArgument AsPartSwitch) =
+          SolvedTwoFiles True inFile outFile      <$ accum
+        accumCase (SolvedSwitch _) (FileArgument inFile) =
+          SolvedOneFile False inFile              <$ accum
+        accumCase (SolvedStdIO asPart) (FileArgument inFile) =
+          SolvedOneFile asPart inFile             <$ accum
+        accumCase (SolvedOneFile asPart inFile) (FileArgument outFile) =
+          SolvedTwoFiles asPart inFile outFile    <$ accum
+        accumCase (SolvedTwoFiles {}) (FileArgument fname) =
+          tell ["Unused extra filename: \"" ++ fname ++ "\"."] >> accum
 

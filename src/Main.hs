@@ -15,9 +15,13 @@ module Main where
 
 
 import CommandLine
+import Control.Monad ( forM_ )
+import Control.Monad.Writer ( runWriter )
+import Data.Maybe ( fromMaybe )
 import GitVersion
+import StreamHelper
 import System.Environment ( getArgs, getProgName )
-import System.IO ( FilePath )
+import System.IO ( FilePath, stderr, hPutStrLn, hPutChar )
 
 
 --  Version and Hash, actually
@@ -27,7 +31,7 @@ showVersion = do
   putStrLn $ progName ++ " version " ++ gitVersion ++ "."
 
 
-showHelp :: IO () 
+showHelp :: IO ()
 showHelp = do
   progName <- getProgName
   putStrLn $ progName ++  " is a simple utility to convert from the \
@@ -52,10 +56,30 @@ showUsage = do
             ++ " {-u|-h|-v|[-p] [<infile>[.fountain] [.|<outfile>[.tex]]]}"
 
 
+runConversion :: Bool -> Maybe (FilePath, Maybe FilePath) -> IO ()
+runConversion _ fileSet = do
+  eitherText  <-  readInputStream (fst <$> fileSet)
+  result      <-  writeOutputStream fileSet `mapM` eitherText
+  case result of
+    Left errMsg -> hPutStrLn stderr errMsg
+    Right _     -> pure ()
+
+
 main :: IO ()
 main = do
   args <- getArgs
-  let (solvedArgs, errorList) = solveArguments args
+  let (solvedArgs, errorList) = runWriter $ solveArguments args
+  if null errorList
+    then  pure ()
+    else  do
+            hPutStrLn stderr "\nNote: "
+            forM_ (fmap ("  - " ++) errorList) (hPutStrLn stderr)
+            hPutChar stderr '\n'
   case solvedArgs of
-
+    SolvedStdIO    part                 -> runConversion part Nothing
+    SolvedOneFile  part inFile          -> runConversion part (Just (inFile, Nothing))
+    SolvedTwoFiles part inFile outFile  -> runConversion part (Just (inFile, Just outFile))
+    SolvedSwitch VersionSwitch          -> showVersion
+    SolvedSwitch HelpSwitch             -> showHelp
+    _                                   -> showUsage
 
